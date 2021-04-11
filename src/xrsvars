@@ -1,0 +1,22 @@
+#!/bin/bash
+
+colors=$(xrdb -query | grep '*')
+
+while read line; do
+  colorCode=$(echo $line| awk '{print $2}')
+  colorName="xrdb$(sed 's/.*\*\(.*\):.*/\1/' <<< $(echo $line | awk '{print $1}'))"
+  if [ $1 = "-test" ]; then
+    echo ${colorName^^}="$colorCode"
+  elif [ $1 = "-export" ]; then
+    export ${colorName^^}="$colorCode"
+  else
+    echo "usage: xrsvars [-options]"
+    echo 
+    printf " -test\t\tprints every color variable without exporting it\n"
+    printf " -export\texports every color in .Xresources as a variable with format \"XRDB{COLOR}\"\n"
+    printf " -help\t\tdisplay this help\n"
+    echo "---------------"
+    echo "hint: put \"source xrsvars -export\" into your .xinitrc"
+    exit
+  fi
+done <<< $colors
